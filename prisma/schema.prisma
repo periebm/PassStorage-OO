@@ -27,6 +27,8 @@ model Credential {
   userId   Int
   password String
   label    String
+  url      String
+  username String
 
   @@map("credentials")
 }
