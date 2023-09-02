@@ -34,8 +34,16 @@ export class CredentialsService {
     return {...credential, password: cryptr.decrypt(credential.password)};
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} credential`;
+  async remove(id: number, user: User) {
+    const credential = await this.credentialsRepository.findOne(id);
+    if (!credential) throw new NotFoundException();
+    if (credential.userId !== user.id) throw new ForbiddenException();
+    
+    return await this.credentialsRepository.remove(id);
+  }
+
+  async removeAll(user: User) {
+    return await this.credentialsRepository.removeAll(user);
   }
 
   async findCredentialWithSameName(

@@ -28,4 +28,8 @@ export class UsersService {
   async getUserByEmail(email: string) {
     return await this.usersRepository.getUserByEmail(email);
   }
+
+  async remove(id: number) {
+    return await this.usersRepository.remove(id);
+  }
 }

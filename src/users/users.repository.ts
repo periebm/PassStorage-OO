@@ -28,4 +28,10 @@ export class UsersRepository {
       where: { email },
     });
   }
+
+  remove(id: number) {
+    return this.prisma.user.delete({
+      where: { id },
+    });
+  }
 }

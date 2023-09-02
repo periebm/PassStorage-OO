@@ -38,7 +38,6 @@ model Notes {
   user       User   @relation(fields: [userId], references: [id])
   userId     Int
   title      String
-  label      String
   annotation String
 
   @@map("notes")
@@ -55,6 +54,7 @@ model Cards {
   password   String
   is_virtual Boolean
   payment    String
+  label      String
 
   @@map("cards")
 }

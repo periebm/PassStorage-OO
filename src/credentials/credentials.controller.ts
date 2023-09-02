@@ -39,7 +39,8 @@ export class CredentialsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.credentialsService.remove(+id);
+  @UseGuards(AuthGuard)
+  remove(@Param('id') id: string, @User() user: user_p) {
+    return this.credentialsService.remove(+id, user);
   }
 }

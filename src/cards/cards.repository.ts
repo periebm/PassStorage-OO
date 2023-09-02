@@ -1,20 +1,20 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { CreateCredentialDto } from './dto/create-credential.dto';
 import { User } from '@prisma/client';
+import { CreateCardDto } from './dto/create-card.dto';
 
 /* eslint-disable */
 const Cryptr = require('cryptr');
 const cryptr = new Cryptr(process.env.CRYPT_KEY);
 
 @Injectable()
-export class CredentialsRepository {
+export class CardsRepository {
 
   constructor(private readonly prisma: PrismaService) {}
   private SALT = 10;
 
-  create(body: CreateCredentialDto, user: User) {
-    return this.prisma.credential.create({
+  create(body: CreateCardDto, user: User) {
+    return this.prisma.cards.create({
       data: {
         ...body,
         userId: user.id,
@@ -23,8 +23,8 @@ export class CredentialsRepository {
     });
   }
 
-  findUserLabel(body: CreateCredentialDto, user: User) {
-    return this.prisma.credential.findFirst({
+  findUserLabel(body: CreateCardDto, user: User) {
+    return this.prisma.cards.findFirst({
       where: {
         AND: [
           { userId: user.id },
@@ -35,12 +35,12 @@ export class CredentialsRepository {
   }
 
   async findAll(user: User) {
-    const credentials = await this.prisma.credential.findMany( {where: {userId: user.id}})
-    return credentials;
+    const cards = await this.prisma.cards.findMany( {where: {userId: user.id}})
+    return cards;
   }
 
   async findOne(id: number) {
-    const theOne = await this.prisma.credential.findFirst({
+    const theOne = await this.prisma.cards.findFirst({
       where: { id },
     })
 
@@ -48,13 +48,13 @@ export class CredentialsRepository {
   }
 
   remove(id: number) {
-    return this.prisma.credential.delete({
+    return this.prisma.cards.delete({
       where: { id },
     });
   }
 
   removeAll(user: User) {
-    return this.prisma.credential.deleteMany({
+    return this.prisma.cards.deleteMany({
       where: { userId: user.id },
     });
   }

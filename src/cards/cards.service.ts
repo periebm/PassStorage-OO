@@ -1,26 +1,61 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCardDto } from './dto/create-card.dto';
-import { UpdateCardDto } from './dto/update-card.dto';
+import { User } from '@prisma/client';
+import { CardsRepository } from './cards.repository';
 
+/* eslint-disable */
+const Cryptr = require('cryptr');
+const cryptr = new Cryptr(process.env.CRYPT_KEY);
 @Injectable()
 export class CardsService {
-  create(createCardDto: CreateCardDto) {
-    return 'This action adds a new card';
+  constructor(private readonly cardsRepository: CardsRepository) {}
+
+  async create(createCardDto: CreateCardDto, user: User) {
+    await this.findCardsWithSameName(createCardDto, user);
+    return await this.cardsRepository.create(createCardDto, user);
   }
 
-  findAll() {
-    return `This action returns all cards`;
+  async findAll(user: User) {
+    const cards = await this.cardsRepository.findAll(user);
+    return cards.map((e) => {
+      return {...e, password: cryptr.decrypt(e.password)}
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} card`;
+  async findOne(id: number, user: User) {
+    const card = await this.cardsRepository.findOne(id);
+    if (!card) throw new NotFoundException();
+    if (card.userId !== user.id) throw new ForbiddenException();
+
+    return {...card, password: cryptr.decrypt(card.password)};;
   }
 
-  update(id: number, updateCardDto: UpdateCardDto) {
-    return `This action updates a #${id} card`;
+  async remove(id: number, user: User) {
+    const card = await this.cardsRepository.findOne(id);
+    if (!card) throw new NotFoundException();
+    if (card.userId !== user.id) throw new ForbiddenException();
+
+    return await this.cardsRepository.remove(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} card`;
+  async removeAll(user: User) {
+    return await this.cardsRepository.removeAll(user);
+  }
+
+  async findCardsWithSameName(
+    createCardDto: CreateCardDto,
+    user: User,
+  ) {
+    const label = await this.cardsRepository.findUserLabel(
+      createCardDto,
+      user,
+    );
+
+    if (label) throw new ConflictException();
   }
 }
