@@ -4,6 +4,7 @@ import { ErasePassowordDto } from './dto/erase.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from '../decorators/user.decorator';
 import { User as user_p } from '@prisma/client';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @Controller('erase')
 export class EraseController {
@@ -11,6 +12,8 @@ export class EraseController {
 
   @Post()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete all info' })
   create(@Body() createEraseDto: ErasePassowordDto, @User() user: user_p) {
     return this.eraseService.remove(createEraseDto, user);
   }
